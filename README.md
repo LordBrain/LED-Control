@@ -2,6 +2,8 @@
 
 A simple web service that allows you to control LED light strips using a rest API. Using a Ardiuno with wifi to control the LED strip.
 
+It writes the devices and mode to a local file for persistence. No need for a database.
+
 ### Rest API
 
 The rest endpoints are:
