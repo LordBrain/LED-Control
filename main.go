@@ -51,7 +51,6 @@ func main() {
 
 	workDir, _ := os.Getwd()
 	filesDir := filepath.Join(workDir, "images")
-	// r.FileServer("/images", http.Dir(filesDir))
 	FileServer(r, "/images", http.Dir(filesDir))
 
 	r.Route("/", func(r chi.Router) {
@@ -196,9 +195,9 @@ func UpdateDevice(w http.ResponseWriter, r *http.Request) {
 
 func addToList(device string) bool {
 	listUpdate := false
-	f, err := os.OpenFile(deviceListName, os.O_APPEND, 0666)
+	f, err := os.OpenFile(deviceListName, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
 	check(err)
-
+	println(device)
 	w := bufio.NewWriter(f)
 	_, err = fmt.Fprintf(w, "%s,0\n", device)
 	if err != nil {
