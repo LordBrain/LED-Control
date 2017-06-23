@@ -12,9 +12,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/pressly/chi"
-	"github.com/pressly/chi/middleware"
-	"github.com/pressly/chi/render"
+	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/render"
 )
 
 type DeviceStruct struct {
@@ -51,7 +51,8 @@ func main() {
 
 	workDir, _ := os.Getwd()
 	filesDir := filepath.Join(workDir, "images")
-	r.FileServer("/images", http.Dir(filesDir))
+	// r.FileServer("/images", http.Dir(filesDir))
+	FileServer(r, "/images", http.Dir(filesDir))
 
 	r.Route("/", func(r chi.Router) {
 		r.Get("/", Index)
@@ -64,7 +65,7 @@ func main() {
 	// RESTy routes for "articles" resource
 	r.Route("/v1/devices", func(r chi.Router) {
 		r.Post("/", CreateDevice) // POST /devices
-		r.Route("/:deviceID", func(r chi.Router) {
+		r.Route("/{deviceID}", func(r chi.Router) {
 			r.Get("/", GetDevice)    // GET /deviceID/123
 			r.Put("/", UpdateDevice) // PUT /deviceID/123
 		})
@@ -214,4 +215,22 @@ func check(e error) {
 	if e != nil {
 		panic(e)
 	}
+}
+
+func FileServer(r chi.Router, path string, root http.FileSystem) {
+	if strings.ContainsAny(path, ":*") {
+		panic("FileServer does not permit URL parameters.")
+	}
+
+	fs := http.StripPrefix(path, http.FileServer(root))
+
+	if path != "/" && path[len(path)-1] != '/' {
+		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
+		path += "/"
+	}
+	path += "*"
+
+	r.Get(path, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fs.ServeHTTP(w, r)
+	}))
 }
