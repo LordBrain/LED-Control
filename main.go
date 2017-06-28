@@ -62,12 +62,13 @@ func main() {
 	})
 
 	// RESTy routes for "articles" resource
-	r.Route("/v1/devices", func(r chi.Router) {
+	r.Route("/v1/devices/{deviceID}", func(r chi.Router) {
+		// r.Post("/", CreateDevice) // POST /devices
+		// r.Route("/{deviceID}", func(r chi.Router) {
 		r.Post("/", CreateDevice) // POST /devices
-		r.Route("/{deviceID}", func(r chi.Router) {
-			r.Get("/", GetDevice)    // GET /deviceID/123
-			r.Put("/", UpdateDevice) // PUT /deviceID/123
-		})
+		r.Get("/", GetDevice)     // GET /deviceID/123
+		r.Put("/", UpdateDevice)  // PUT /deviceID/123
+		// })
 	})
 
 	http.ListenAndServe(":3333", r)
@@ -97,15 +98,16 @@ func Index(w http.ResponseWriter, r *http.Request) {
 
 //CreateDevice adds device to the file.
 func CreateDevice(w http.ResponseWriter, r *http.Request) {
+	deviceID := chi.URLParam(r, "deviceID")
 	iExist := false
 
-	body, err := ioutil.ReadAll(r.Body)
-	check(err)
-
-	data := DeviceStruct{}
-
-	err = json.Unmarshal(body, &data)
-	check(err)
+	// body, err := ioutil.ReadAll(r.Body)
+	// check(err)
+	//
+	// data := DeviceStruct{}
+	//
+	// err = json.Unmarshal(body, &data)
+	// check(err)
 
 	//Check if device is in list.
 	file, err := os.Open(deviceListName)
@@ -114,20 +116,24 @@ func CreateDevice(w http.ResponseWriter, r *http.Request) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		part := strings.Split(scanner.Text(), ",")
-		compare := strings.EqualFold(part[0], data.DeviceID)
+		// compare := strings.EqualFold(part[0], data.DeviceID)
+		compare := strings.EqualFold(part[0], deviceID)
 		if compare {
 			iExist = true
 		}
 	}
 
-	fmt.Printf("Device %s is in list: %t\n", data.DeviceID, iExist)
+	// fmt.Printf("Device %s is in list: %t\n", data.DeviceID, iExist)
+	fmt.Printf("Device %s is in list: %t\n", deviceID, iExist)
 
 	//If its created, return 201. If it already exists return 200.
 	if iExist {
 		//Device is already there. Return 200
 		http.Error(w, http.StatusText(http.StatusOK), http.StatusOK)
 	} else {
-		updated := addToList(data.DeviceID)
+		// updated := addToList(data.DeviceID)
+		updated := addToList(deviceID)
+
 		if updated {
 			// Added to the list correctly. Return 201
 			http.Error(w, http.StatusText(http.StatusCreated), http.StatusCreated)
