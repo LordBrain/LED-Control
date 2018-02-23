@@ -17,12 +17,14 @@ import (
 	"github.com/go-chi/chi/render"
 )
 
+//DeviceStruct struct for the devices.
 type DeviceStruct struct {
 	DeviceID string `jason:"deviceID"`
 	ID       string `json:"id"`
 	Command  string `json:"command"`
 }
 
+//Model is our model
 type Model struct {
 	Title   string
 	Devices []string
@@ -36,14 +38,11 @@ func main() {
 		println("Device list does not exist. Creating.")
 		f, err := os.Create(deviceListName)
 		check(err)
-
 		defer f.Close()
 	}
 
 	flag.Parse()
-
 	r := chi.NewRouter()
-
 	r.Use(middleware.RequestID)
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
@@ -57,18 +56,16 @@ func main() {
 		r.Get("/", Index)
 	})
 
+	///ping endpoint, returns wiht pong.
 	r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("pong"))
 	})
 
-	// RESTy routes for "articles" resource
+	//Main API endpoints
 	r.Route("/v1/devices/{deviceID}", func(r chi.Router) {
-		// r.Post("/", CreateDevice) // POST /devices
-		// r.Route("/{deviceID}", func(r chi.Router) {
 		r.Post("/", CreateDevice) // POST /devices
 		r.Get("/", GetDevice)     // GET /deviceID/123
 		r.Put("/", UpdateDevice)  // PUT /deviceID/123
-		// })
 	})
 
 	http.ListenAndServe(":3333", r)
@@ -101,14 +98,6 @@ func CreateDevice(w http.ResponseWriter, r *http.Request) {
 	deviceID := chi.URLParam(r, "deviceID")
 	iExist := false
 
-	// body, err := ioutil.ReadAll(r.Body)
-	// check(err)
-	//
-	// data := DeviceStruct{}
-	//
-	// err = json.Unmarshal(body, &data)
-	// check(err)
-
 	//Check if device is in list.
 	file, err := os.Open(deviceListName)
 	check(err)
@@ -116,14 +105,12 @@ func CreateDevice(w http.ResponseWriter, r *http.Request) {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		part := strings.Split(scanner.Text(), ",")
-		// compare := strings.EqualFold(part[0], data.DeviceID)
 		compare := strings.EqualFold(part[0], deviceID)
 		if compare {
 			iExist = true
 		}
 	}
 
-	// fmt.Printf("Device %s is in list: %t\n", data.DeviceID, iExist)
 	fmt.Printf("Device %s is in list: %t\n", deviceID, iExist)
 
 	//If its created, return 201. If it already exists return 200.
@@ -222,6 +209,7 @@ func check(e error) {
 	}
 }
 
+// FileServer Load the color image for the root /
 func FileServer(r chi.Router, path string, root http.FileSystem) {
 	if strings.ContainsAny(path, ":*") {
 		panic("FileServer does not permit URL parameters.")

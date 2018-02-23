@@ -26,12 +26,30 @@
       });
     }
   }
+// 	function showValue(newValue)
+// {
+// 	document.getElementById("range").innerHTML=newValue;
+// }
 </script>
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
 </head>
 <body>
 
       <canvas width="600" height="440" id="canvas_picker"></canvas>
   <table>
+		<tr>
+			<td colspan="4">
+				<!-- Brightness<br>
+				<input id="brightness" type="range"  min="0" max="100" />
+				<br>
+				<span id="range">0</span> -->
+				<div data-role="main" class="ui-content">
+      		<label for="points">Points:</label>
+      		<input type="range" name="points" id="points" value="50" min="0" max="100">
+				</div>
+			</td>
+		</tr>
     <tr>
       <td>
       <select id="Device">

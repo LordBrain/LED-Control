@@ -1,0 +1,7 @@
+package: LED-Control
+import:
+- package: github.com/go-chi/chi
+  version: ~3.3.2
+  subpackages:
+  - middleware
+  - render
