@@ -67,8 +67,19 @@ func main() {
 		r.Get("/", GetDevice)     // GET /deviceID/123
 		r.Put("/", UpdateDevice)  // PUT /deviceID/123
 	})
+	//Sets the default port
+	PORT := "3333"
 
-	http.ListenAndServe(":3333", r)
+	//Checks to see if there is a environment variable to change the port.
+	val, ok := os.LookupEnv("PORT")
+	if !ok {
+		fmt.Printf("%s not set. Using default 3333\n", "PORT")
+	} else {
+		fmt.Printf("%s=%s\n", "PORT", val)
+		PORT = val
+	}
+
+	http.ListenAndServe(":"+PORT, r)
 
 }
 
