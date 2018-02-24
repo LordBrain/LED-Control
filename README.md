@@ -6,6 +6,8 @@ It writes the devices and mode to a local file for persistence. No need for a da
 
 ### Rest API
 
+By default it runs on port 3333. Set a environment variable for PORT to the port number you want to run on.
+
 The rest endpoints are:
 * / - The web page used for controlling the strips. It will have a drop down list of all the devices and a color selection wheel.
 * /images - Where the color selection wheel is (other images can go there as well, if you want).
