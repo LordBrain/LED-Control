@@ -6,8 +6,5 @@ RUN mkdir github.com && cd github.com \
     && GOOS=linux GOARCH=amd64 go build
 
 FROM golang:1.10-alpine
-RUN mkdir /go/html && mkdir /go/images
-COPY --from=0 /go/src/github.com/LED-Control/html/* /go/html/
-COPY --from=0 /go/src/github.com/LED-Control/images/* /go/images/
-COPY --from=0 /go/src/github.com/LED-Control/LED-Control .
+COPY --from=0 /go/src/github.com/LED-Control/html /go/src/github.com/LED-Control/images /go/src/github.com/LED-Control/LED-Control .
 CMD ["./LED-Control"]
