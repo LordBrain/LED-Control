@@ -14,12 +14,12 @@ import (
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/chi/middleware"
-	"github.com/go-chi/chi/render"
+	"github.com/go-chi/render"
 )
 
 //DeviceStruct struct for the devices.
 type DeviceStruct struct {
-	DeviceID string `jason:"deviceID"`
+	DeviceID string `json:"deviceID"`
 	ID       string `json:"id"`
 	Command  string `json:"command"`
 }
