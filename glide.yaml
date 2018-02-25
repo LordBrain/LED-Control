@@ -1,7 +1,5 @@
-package: LED-Control
+package: github.com/blee1170/LED-Control
 import:
 - package: github.com/go-chi/chi
   version: ~3.3.2
-  subpackages:
-  - middleware
-  - render
+- package: github.com/go-chi/render
