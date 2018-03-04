@@ -98,14 +98,15 @@
 	  var img_data = canvas.getImageData(x, y, 1, 1).data;
 	  var R = img_data[0];
 	  var G = img_data[1];
-	  var B = img_data[2];  var rgb = R + ',' + G + ',' + B;
+	  var B = img_data[2];
+		var rgb = R + '-' + G + '-' + B;
 	  // convert RGB to HEX
-	  var hex = rgbToHex(R,G,B);
+	  //var hex = rgbToHex(R,G,B);
 
     var e = document.getElementById("Device");
     var selectedDevice = e.options[e.selectedIndex].value;
 
-    var dataObject = { 'command': hex };
+    var dataObject = { 'command': rgb };
     $.ajax({
                     url: '/v1/devices/' + selectedDevice,    //Your api url
                     type: 'PUT',   //type is any HTTP method
