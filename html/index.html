@@ -1,124 +1,158 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<meta charset="utf-8" />
 	<title>{{- .Title -}}</title>
-  <!-- Example from:
+	<style>
+		.slidecontainer {
+			width: 100%;
+		}
+
+		.slider {
+			-webkit-appearance: none;
+			width: 100%;
+			height: 25px;
+			background: #d3d3d3;
+			outline: none;
+			opacity: 0.7;
+			-webkit-transition: .2s;
+			transition: opacity .2s;
+		}
+
+		.slider:hover {
+			opacity: 1;
+		}
+
+		.slider::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			appearance: none;
+			width: 25px;
+			height: 25px;
+			background: #4CAF50;
+			cursor: pointer;
+		}
+
+		.slider::-moz-range-thumb {
+			width: 25px;
+			height: 25px;
+			background: #4CAF50;
+			cursor: pointer;
+		}
+	</style>
+	<!-- Example from:
   https://www.webdesignerdepot.com/2013/03/how-to-create-a-color-picker-with-html5-canvas/ -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-  <script type="text/javascript">
-  function ledMode(x){
-    console.log("ledMode");
-    if (x === ""){
-      console.log("Doing nothing")
-    }else{
-      var e = document.getElementById("Device");
-      var selectedDevice = e.options[e.selectedIndex].value;
-      var dataObject = { 'command': x };
-      $.ajax({
-          url: '/v1/devices/' + selectedDevice,    //Your api url
-          type: 'PUT',   //type is any HTTP method
-          contentType: "application/json",
-          data: JSON.stringify(dataObject),
-          //Data as js object
-          success: function () {
-          }
-      });
-    }
-  }
-// 	function showValue(newValue)
-// {
-// 	document.getElementById("range").innerHTML=newValue;
-// }
-</script>
-<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
-<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+	<script type="text/javascript">
+		function ledMode(x) {
+			console.log("ledMode");
+			if (x === "") {
+				console.log("Doing nothing")
+			} else {
+				var e = document.getElementById("Device");
+				var selectedDevice = e.options[e.selectedIndex].value;
+				var dataObject = {
+					'command': x
+				};
+				$.ajax({
+					url: '/v1/devices/' + selectedDevice, //Your api url
+					type: 'PUT', //type is any HTTP method
+					contentType: "application/json",
+					data: JSON.stringify(dataObject),
+					//Data as js object
+					success: function() {}
+				});
+			}
+		}
+	</script>
+
 </head>
+
 <body>
 
-      <canvas width="600" height="440" id="canvas_picker"></canvas>
-  <table>
-		<tr>
-			<td colspan="4">
-				<!-- Brightness<br>
-				<input id="brightness" type="range"  min="0" max="100" />
-				<br>
-				<span id="range">0</span> -->
-				<div data-role="main" class="ui-content">
-      		<label for="points">Points:</label>
-      		<input type="range" name="points" id="points" value="50" min="0" max="100">
-				</div>
-			</td>
-		</tr>
-    <tr>
-      <td>
-      <select id="Device">
+	<canvas width="600" height="440" id="canvas_picker"></canvas>
+	<div class="slidecontainer">
+		Brightness: <span id="brightnessValue"></span> <input type="range" min="1" max="100" value="50" id="brightnessRange">
+		<p></p>
+	</div>
+	<div>
+		<select id="Device">
         {{range .Devices}}
     <option value="{{.}}">{{.}}</option>
 {{end}}
       </select>
-    </td>
-    <td>
-      <button onclick="ledMode('0')">LED Off</button>
-    </td>
-    <td>
-    <button onclick="ledMode('1')">Color Cycle</button>
-    </td>
-    <td>
-    <button onclick="ledMode('2')">Party Mode</button>
-    </td>
-  </tr>
-  </table>
 
-<script type="text/javascript">
-	var canvas = document.getElementById('canvas_picker').getContext('2d');
+		<button onclick="ledMode('0')">LED Off</button>
 
-	// create an image object and get it’s source
-	var img = new Image();
-	img.src = 'images/colorwheel.png';
+		<button onclick="ledMode('1')">Color Cycle</button>
 
-	// copy the image to the canvas
-	$(img).load(function(){
-	  canvas.drawImage(img,0,0);
-	});
+		<button onclick="ledMode('2')">Party Mode</button>
+	</div>
 
-	// http://www.javascripter.net/faq/rgbtohex.htm
-	function rgbToHex(R,G,B) {return toHex(R)+toHex(G)+toHex(B)}
-	function toHex(n) {
-	  n = parseInt(n,10);
-	  if (isNaN(n)) return "00";
-	  n = Math.max(0,Math.min(n,255));
-	  return "0123456789ABCDEF".charAt((n-n%16)/16)  + "0123456789ABCDEF".charAt(n%16);
-	}
-	$('#canvas_picker').click(function(event){
-	  // getting user coordinates
-	  var x = event.pageX - this.offsetLeft;
-	  var y = event.pageY - this.offsetTop;
-	  // getting image data and RGB values
-	  var img_data = canvas.getImageData(x, y, 1, 1).data;
-	  var R = img_data[0];
-	  var G = img_data[1];
-	  var B = img_data[2];
-		var rgb = R + '-' + G + '-' + B;
-	  // convert RGB to HEX
-	  //var hex = rgbToHex(R,G,B);
+	<script type="text/javascript">
+		var canvas = document.getElementById('canvas_picker').getContext('2d');
 
-    var e = document.getElementById("Device");
-    var selectedDevice = e.options[e.selectedIndex].value;
+		// create an image object and get it’s source
+		var img = new Image();
+		img.src = 'images/colorwheel.png';
 
-    var dataObject = { 'command': rgb };
-    $.ajax({
-                    url: '/v1/devices/' + selectedDevice,    //Your api url
-                    type: 'PUT',   //type is any HTTP method
-                    contentType: "application/json",
-                    data: JSON.stringify(dataObject), //Data as js object
-                    success: function () {
-                    }
-                })
-                ;
-	});
-</script>
+		// copy the image to the canvas
+		$(img).load(function() {
+			canvas.drawImage(img, 0, 0);
+		});
+
+		// http://www.javascripter.net/faq/rgbtohex.htm
+		function rgbToHex(R, G, B) {
+			return toHex(R) + toHex(G) + toHex(B)
+		}
+
+		function toHex(n) {
+			n = parseInt(n, 10);
+			if (isNaN(n)) return "00";
+			n = Math.max(0, Math.min(n, 255));
+			return "0123456789ABCDEF".charAt((n - n % 16) / 16) + "0123456789ABCDEF".charAt(n % 16);
+		}
+		$('#canvas_picker').click(function(event) {
+			// get brightness`
+			bright = document.getElementById("brightnessRange").value;
+			// getting user coordinates
+			var x = event.pageX - this.offsetLeft;
+			var y = event.pageY - this.offsetTop;
+			// getting image data and RGB values
+			var img_data = canvas.getImageData(x, y, 1, 1).data;
+			var R = img_data[0];
+			var G = img_data[1];
+			var B = img_data[2];
+			var rgb = R + '-' + G + '-' + B + '-' + bright;
+			// convert RGB to HEX
+			//var hex = rgbToHex(R,G,B);
+
+			var e = document.getElementById("Device");
+			var selectedDevice = e.options[e.selectedIndex].value;
+
+			var dataObject = {
+				'command': rgb
+			};
+			$.ajax({
+				url: '/v1/devices/' + selectedDevice, //Your api url
+				type: 'PUT', //type is any HTTP method
+				contentType: "application/json",
+				data: JSON.stringify(dataObject), //Data as js object
+				success: function() {}
+			});
+		});
+
+		//slidecontainer
+		var slider = document.getElementById("brightnessRange");
+		var output = document.getElementById("brightnessValue");
+		output.innerHTML = slider.value;
+
+		slider.oninput = function() {
+			output.innerHTML = this.value;
+		}
+	</script>
 
 
 </body>
+
 </html>

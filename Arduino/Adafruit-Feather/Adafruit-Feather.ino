@@ -1,5 +1,3 @@
-#include <Adafruit_HMC5883_U.h>
-
 /*
  *  Simple HTTP get webclient test
  */
@@ -11,12 +9,12 @@
 #include "FastLED.h"
 
 // WiFi Stuff
-const char* ssid     = "<WIFI_SSID>";
-const char* password = "<WIFI_PASSWORD>";
+const char* ssid     = "<SSID>";
+const char* password = "<PASSWORD>";
 
 // LED Controller API
-const char* host_address = "192.168.1.238";
-const char* host_port = "3333"
+const char* host_address = "192.168.1.3";
+const int host_port = 4444;
 
 const String deviceName = "ledstrip1";
 
@@ -54,7 +52,7 @@ void TimerStart ( struct Timer * timer )
 }
 
 //wifi task running every 3000 milliseconds
-Timer timerWiFi = { 0, 2000 };
+Timer timerWiFi = { 0, 500 };
 //onboard task running every 10000 milliseconds
 Timer timerLED = { 0, 100 };
 
@@ -84,15 +82,13 @@ void setup() {
   delay(5000);
 
   Serial.print("connecting to ");
-  Serial.println(host);
+  Serial.println(host_address);
 
 
   // Use WiFiClient class to create TCP connections
   WiFiClient client;
-  // const int httpPort = 3333;
   if (!client.connect(host_address, host_port)) {
     Serial.println("connection failed");
-    //return;
   }
 
   // We now create a URI for the request
@@ -102,7 +98,7 @@ void setup() {
 
   // This will send the request to the server
   client.print(String("POST ") + url + " HTTP/1.1\r\n" +
-               "Host: " + host + "\r\n" +
+               "Host: " + host_address +":"+host_port + "\r\n" +
                "Connection: close\r\n\r\n");
   delay(500);
 
@@ -113,9 +109,8 @@ void setup() {
   }
 
   //LED Stuff
-  // See the Fast LED docs for your configuration.
   FastLED.addLeds<LED_TYPE, DATA_PIN, RGB>(leds, NUM_LEDS);
-  LEDS.setBrightness(84);
+  LEDS.setBrightness(64);
 
   //On board LED
   pinMode(0, OUTPUT);
@@ -137,10 +132,6 @@ void loop() {
 
        TimerStart ( & timerWiFi );
    }
-
-//   if ( TimerExpired ( & timerLED ) )
-//   {
-//       if (currentMode != myMode){
         if (myMode == "0"){
           // LED Off
           ledOff();
@@ -174,28 +165,24 @@ void loop() {
 
 void checkMode (String &myMode )
 {
-//  String line;
   ++value;
 
   Serial.print("connecting to ");
-  Serial.println(host);
+  Serial.println(host_address);
 
   // Use WiFiClient class to create TCP connections
   WiFiClient client;
-  const int httpPort = 3333;
-  if (!client.connect(host, httpPort)) {
+  if (!client.connect(host_address, host_port)) {
     Serial.println("connection failed");
-    //return;
   }
 
-  // We now create a URI for the request
   String url = "/v1/devices/" + deviceName;
   Serial.print("Requesting URL: ");
   Serial.println(url);
 
   // This will send the request to the server
   client.print(String("GET ") + url + " HTTP/1.1\r\n" +
-               "Host: " + host + "\r\n" +
+               "Host: " + host_address + ":" + host_port + "\r\n" +
                "Connection: close\r\n\r\n");
   delay(500);
 
@@ -203,9 +190,7 @@ void checkMode (String &myMode )
   while(client.available()){
     String line = client.readStringUntil('\r');
     myMode = line;
-    Serial.print(line);
   }
-//  return line;
 
   Serial.println();
   Serial.println("closing connection");
@@ -220,69 +205,61 @@ void taskOnBoard ( void )
 }
 
 void ledOff (){
-//  FastLED.clear();
   for(int i = 0; i < NUM_LEDS; i++) {
-    // Set the i'th led to red
     leds[i] = CRGB::Black;
-    // Show the leds
     FastLED.show();
-    // now that we've shown the leds, reset the i'th led to black
-    // leds[i] = CRGB::Black;
     fadeall();
-    // Wait a little bit before we loop around and do it again
     delay(10);
   }
-//  leds[0] = CRGB::Black;
-//  FastLED.show();
-//digitalWrite(0, HIGH);
-//Serial.println("LED OFF");
+
 }
 
 void fadeall() { for(int i = 0; i < NUM_LEDS; i++) { leds[i].nscale8(250); } }
 
 void cylon(){
-    static uint8_t hue = 0;
-  Serial.print("x");
-  // First slide the led in one direction
+  static uint8_t hue = 0;
   for(int i = 0; i < NUM_LEDS; i++) {
-    // Set the i'th led to red
     leds[i] = CHSV(hue++, 255, 255);
-    // Show the leds
     FastLED.show();
-    // now that we've shown the leds, reset the i'th led to black
-    // leds[i] = CRGB::Black;
     fadeall();
-    // Wait a little bit before we loop around and do it again
     delay(10);
   }
-  Serial.print("x");
-
   // Now go in the other direction.
   for(int i = (NUM_LEDS)-1; i >= 0; i--) {
-    // Set the i'th led to red
     leds[i] = CHSV(hue++, 255, 255);
-    // Show the leds
     FastLED.show();
-    // now that we've shown the leds, reset the i'th led to black
-    // leds[i] = CRGB::Black;
     fadeall();
-    // Wait a little bit before we loop around and do it again
     delay(10);
   }
 }
 
-void staticColor(String hexValue){
-
-  long int rgb=stol(hexValue,0,16);
-  byte RED=(byte)(rgb>>16);
-  byte GREEN=(byte)(rgb>>8);
-  byte BLUE=(byte)(rgb);
+void staticColor(const String& rgbValue){
+  Serial.println("In Static Color.");
+  Serial.println("RGB Value: " + rgbValue);
+  int dashIndex = rgbValue.indexOf('-');
+  int secondDashIndex = rgbValue.indexOf('-', dashIndex + 1);
+  int thirdDashIndex = rgbValue.indexOf('-',secondDashIndex + 1);
+  String firstValue = rgbValue.substring(0, dashIndex);
+  String secondValue = rgbValue.substring(dashIndex + 1, secondDashIndex);
+  String thirdValue = rgbValue.substring(secondDashIndex + 1);
+  String fourthValue = rgbValue.substring(thirdDashIndex + 1);
+  int g = firstValue.toInt();
+  int r = secondValue.toInt();
+  int b = thirdValue.toInt();
+  int bright = fourthValue.toInt();
+  Serial.println("RGB:");
+  Serial.println("r: " + r);
+  Serial.println("g: " + g);
+  Serial.println("b: " + b);
+  Serial.println("Brightness: " + bright);
 
   for(int i = 0; i < NUM_LEDS; i++) {
-    // Set the i'th led to red
-    leds[i] = CHSV(RED, GREEN, BLUE);
-    // Show the leds
+    leds[i].r = r;
+    leds[i].g = g;
+    leds[i].b = b;
+    FastLED.setBrightness(bright);
     FastLED.show();
+    delay(2);
   }
 
 }
