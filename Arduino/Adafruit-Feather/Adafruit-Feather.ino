@@ -152,7 +152,7 @@ void checkMode ( )
   // Read all the lines of the reply from server and print them to Serial
   start = millis ();
   while (client.available()) {
-    String line = client.readStringUntil('\r');
+    String line = client.readStringUntil('\r\n');
     myMode = line;
   }
   finish = millis ();
