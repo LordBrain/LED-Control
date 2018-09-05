@@ -160,7 +160,7 @@ func GetDevice(w http.ResponseWriter, r *http.Request) {
 			returnConfig = part[1]
 		}
 	}
-	w.Write([]byte(returnConfig))
+	w.Write([]byte(returnConfig + "\r\n"))
 
 }
 
