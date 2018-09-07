@@ -6,7 +6,7 @@
 #include <ESP8266HTTPClient.h>
 #define USE_SERIAL Serial
 #include <WiFiClient.h>
-
+#define FASTLED_ALLOW_INTERRUPTS 0
 #include "FastLED.h"
 
 // WiFi Stuff
@@ -117,6 +117,7 @@ void loop() {
     myMode.trim();
   }
   while (myMode == "2") {
+    partyMode();
     currentMode = myMode;
     checkMode();
     myMode.trim();
@@ -229,3 +230,18 @@ void staticColor(const String& rgbValue) {
   }
 
 }
+
+void partyMode() {
+  int r = random(0, 255);
+  int g = random(0, 255);
+  int b = random(0, 255);
+  for (int i = 0; i < NUM_LEDS; i++) {
+    leds[i].r = r;
+    leds[i].g = g;
+    leds[i].b = b;
+//    FastLED.setBrightness(bright);
+    FastLED.show();
+    delay(2);
+  }
+}
+
